@@ -400,58 +400,60 @@ public class ComparaRegistros {
     }
 
     //Formato da data vinda do arquivo csv: YYYYMMDD
-    private static double comparaDatas(String data1, String data2, double nota){
+    private static double comparaDatas(String data1, String data2, double nota) {
+        if (data1.equals("NA") || data2.equals("NA")) {
+            for (int i = 14; i < 20; i++) { pontos[i] = "0,0"; }
+        }else {
+            //Criterio 15: Datas de nascimento dos pacientes iguais.
+            if (data1.equals(data2)) {
+                nota++;
+                pontos[14] = "1,0";
+            }
 
-        //Criterio 15: Datas de nascimento dos pacientes iguais.
-        if(data1.equals(data2)){
-            nota++;
-            pontos[14] = "1,0";
-        }
+            //Criterio 16: Datas de nascimento dos pacientes com apenas um digito trocado.
+            int diferenca = Utilidade.LevenshteinDistance(data1, data2);
+            if (diferenca == 1) {
+                nota++;
+                pontos[15] = "1,0";
+            } else if (diferenca == 2) {
+                String dia1 = data1.substring(6, 8);
+                String dia2 = data2.substring(6, 8);
+                String mes1 = data1.substring(4, 6);
+                String mes2 = data2.substring(4, 6);
+                String ano1 = data1.substring(0, 4);
+                String ano2 = data2.substring(0, 4);
 
-        //Criterio 16: Datas de nascimento dos pacientes com apenas um digito trocado.
-        int diferenca = Utilidade.LevenshteinDistance(data1, data2);
-        if (diferenca == 1){
-            nota++;
-            pontos[15] = "1,0";
-        }else if(diferenca == 2){
-            String dia1 = data1.substring(6, 8);
-            String dia2 = data2.substring(6, 8);
-            String mes1 = data1.substring(4, 6);
-            String mes2 = data2.substring(4, 6);
-            String ano1 = data1.substring(0, 4);
-            String ano2 = data2.substring(0, 4);
-
-            //Criterio 17: Datas de nascimento dos pacientes com inversao entre os digitos do dia.
-            if((Utilidade.LevenshteinDistance(dia1, dia2) == 2) && (dia1.charAt(0) == dia2.charAt(1)) && (dia1.charAt(1) == dia2.charAt(0))){
-                nota += 0.8;
-                pontos[16] = "0,8";
-
-                //Criterio 18: Datas de nascimento dos pacientes com inversao entre os digitos do mes.
-            }else if((Utilidade.LevenshteinDistance(mes1, mes2) == 2) && (mes1.charAt(0) == mes2.charAt(1)) && (mes1.charAt(1) == mes2.charAt(0))){
-                nota += 0.8;
-                pontos[17] = "0,8";
-
-                //Criterio 19: Datas de nascimento dos pacientes com inversao entre os digitos do ano.
-            }else if(Utilidade.LevenshteinDistance(ano1, ano2) == 2){
-                int i = 0;
-                while(ano1.charAt(i) == ano2.charAt(i)){
-                    i++;
-                }
-                int j = i+1;
-                while(ano1.charAt(j) == ano2.charAt(j)){
-                    j++;
-                }
-                if((ano1.charAt(i) == ano2.charAt(j)) && (ano1.charAt(j) == ano2.charAt(i))){
+                //Criterio 17: Datas de nascimento dos pacientes com inversao entre os digitos do dia.
+                if ((Utilidade.LevenshteinDistance(dia1, dia2) == 2) && (dia1.charAt(0) == dia2.charAt(1)) && (dia1.charAt(1) == dia2.charAt(0))) {
                     nota += 0.8;
-                    pontos[18] = "0,8";
+                    pontos[16] = "0,8";
+
+                    //Criterio 18: Datas de nascimento dos pacientes com inversao entre os digitos do mes.
+                } else if ((Utilidade.LevenshteinDistance(mes1, mes2) == 2) && (mes1.charAt(0) == mes2.charAt(1)) && (mes1.charAt(1) == mes2.charAt(0))) {
+                    nota += 0.8;
+                    pontos[17] = "0,8";
+
+                    //Criterio 19: Datas de nascimento dos pacientes com inversao entre os digitos do ano.
+                } else if (Utilidade.LevenshteinDistance(ano1, ano2) == 2) {
+                    int i = 0;
+                    while (ano1.charAt(i) == ano2.charAt(i)) {
+                        i++;
+                    }
+                    int j = i + 1;
+                    while (ano1.charAt(j) == ano2.charAt(j)) {
+                        j++;
+                    }
+                    if ((ano1.charAt(i) == ano2.charAt(j)) && (ano1.charAt(j) == ano2.charAt(i))) {
+                        nota += 0.8;
+                        pontos[18] = "0,8";
+                    }
                 }
             }
+
+            //criterio 20: aplicação da diferença entre 1 e a distancia de Levenshtein por uma constante 0,8
+            nota += 1 - (diferenca * 0.125);
+            pontos[19] = df.format((1 - (diferenca * 0.125)));
         }
-
-        //criterio 20: aplicação da diferença entre 1 e a distancia de Levenshtein por uma constante 0,8
-        nota += 1 - (diferenca*0.125);
-        pontos[19] =  df.format((1 - (diferenca*0.125)));
-
         return nota;
     }
 

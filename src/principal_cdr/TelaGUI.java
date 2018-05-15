@@ -181,6 +181,7 @@ public class TelaGUI extends JFrame {
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt){
         //inicia a parte de processamento do algoritmo
+        //removeExtensaoFile(txtSaida.getName());
         ComparaRegistros.inicia(filepath,txtSaida.getText() ,comboBox.getSelectedIndex(),comboBox_1.getSelectedIndex(),comboBox_2.getSelectedIndex(),comboBox_3.getSelectedIndex(),comboBox_4.getSelectedIndex(),comboBox_5.getSelectedIndex());
 
         JOptionPane.showMessageDialog(contentPane, "Comparação Finalizada!\nO separador do arquivo de saida e ponto e virgula");
@@ -195,16 +196,26 @@ public class TelaGUI extends JFrame {
         chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         TelaGUI tela = new TelaGUI() ;
         int returnVal = chooser.showOpenDialog(tela);
+        //removeExtensaoFile(txtSaida.getName());
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             System.out.println("Você selecionou o arquivo: " +
                     chooser.getSelectedFile().getName());
         }
 
         filepath = chooser.getSelectedFile().getPath();
-        txtEntrada.setText(chooser.getSelectedFile().getName());
-        txtSaida.setText("saida_"+
-                chooser.getSelectedFile().getName());
+        txtEntrada.setText(removeExtensaoFile(chooser.getSelectedFile().getName()));
+        txtSaida.setText(removeExtensaoFile("saida_"+
+                chooser.getSelectedFile().getName()));
+        //removeExtensaoFile(txtSaida.getName());
+        System.out.println(txtSaida.getName());
         //--------------------------------------------------------------------------
+    }
+
+    public String removeExtensaoFile(String fileName) {
+        //String fileName = txtSaida.getName();
+        if (fileName.indexOf(".") > 0)
+            fileName = fileName.substring(0, fileName.lastIndexOf("."));
+        return fileName;
     }
 
     public static void emiteMensagemFaltaFrequencias(){
